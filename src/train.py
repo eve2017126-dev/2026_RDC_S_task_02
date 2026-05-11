@@ -12,7 +12,7 @@ from model import CNNImproved
 from utils import plot_training_history
 
 def train_focused_on_bus():
-    # 设置设备
+    # 设置设备 - 自动选择可用的GPU或CPU
     if torch.cuda.is_available():
         device = torch.device("cuda")
         print(f"使用设备: {device}")
@@ -52,11 +52,11 @@ def train_focused_on_bus():
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=0)
     val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, num_workers=0)
 
-    # 初始化模型
+    # 初始化模型 - 带残差连接的CNN模型
     model = CNNImproved(num_classes=2, input_size=64).to(device)
-    print("使用改进版CNN模型（带残差连接）")
+    print("使用改进版CNN模型(带残差连接)")
     
-    # 加载之前训练的权重作为起点（如果有）
+    # 加载之前训练的权重作为起点
     if os.path.exists("../models/cnn_model_focal.pth"):
         try:
             model.load_state_dict(torch.load("../models/cnn_model_focal.pth", map_location=device))
@@ -74,12 +74,12 @@ def train_focused_on_bus():
     
     criterion = focal_loss_alpha
     
-    # 使用较低的学习率进行微调
+    # 使用Adam优化器，适当的学习率和权重衰减
     optimizer = optim.Adam(model.parameters(), lr=0.0005, weight_decay=5e-5)
     scheduler = StepLR(optimizer, step_size=8, gamma=0.7)
 
     # 训练参数
-    epochs = 30
+    epochs = 30              # 训练轮数
     best_bus_accuracy = 0.0  # 专门针对bus准确率优化
     
     # 记录训练历史
@@ -89,7 +89,7 @@ def train_focused_on_bus():
     val_car_accs = []
     val_accs = []
 
-    print("\n开始针对性训练（重点提升巴士准确率）...")
+    print("\n开始训练")
     
     for epoch in range(epochs):
         # 训练模式
@@ -98,19 +98,23 @@ def train_focused_on_bus():
         train_correct = 0
         train_total = 0
 
+        # 遍历训练集
         for images, labels in train_loader:
+
+            # 将数据移动到设备
             images, labels = images.to(device), labels.to(device)
 
-            # 前向传播
+            # 前向传播: 计算预测结果
             outputs = model(images)
+            # 计算损失
             loss = criterion(outputs, labels)
 
-            # 反向传播
+            # 反向传播：计算梯度并更新参数
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
-            # 统计
+            # 统计训练指标
             train_loss += loss.item() * images.size(0)
             _, predicted = torch.max(outputs, 1)
             train_total += labels.size(0)
@@ -148,7 +152,7 @@ def train_focused_on_bus():
                         if predicted[i] == labels[i]:
                             val_car_correct += 1
 
-        # 计算指标
+        # 计算平均指标
         train_loss = train_loss / train_total
         val_loss = val_loss / val_total
         val_acc = 100 * val_correct / val_total
@@ -171,7 +175,7 @@ def train_focused_on_bus():
         print(f"  验证: Loss={val_loss:.4f}, Total Acc={val_acc:.2f}%")
         print(f"    Bus Acc: {val_bus_acc:.2f}%, Car Acc: {val_car_acc:.2f}%")
 
-        # 保存最佳模型 - 优先考虑bus准确率，但car准确率不能太低
+        # 保存最佳模型
         if val_bus_acc > best_bus_accuracy and val_car_acc >= 92.0:  # 保证car准确率不低于92%
             best_bus_accuracy = val_bus_acc
             torch.save(model.state_dict(), "../models/cnn_model_bus_focus.pth")
@@ -180,7 +184,7 @@ def train_focused_on_bus():
     # 绘制训练历史
     plot_training_history(val_accs, val_bus_accs + val_car_accs, train_losses, val_losses, save_path="../models/training_history_bus_focus.png")
     
-    print(f"\n训练完成, 最佳巴士准确率: {best_bus_accuracy:.2f}%")
+    print(f"\n训练完成")
 
 if __name__ == "__main__":
     train_focused_on_bus()

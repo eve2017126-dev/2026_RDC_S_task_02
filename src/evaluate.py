@@ -7,16 +7,8 @@ from dataset import BusCarDataset
 from model import CNN, CNNImproved
 
 def evaluate(model_path="../models/cnn_model_bus_focus.pth"):  # 优先使用最新的专注巴士模型
-    """
-    评估CNN模型在测试集上的性能
-    
-    Args:
-        model_path (str): 模型文件路径
-    
-    Returns:
-        dict: 包含准确率、损失等评估指标
-    """
-    # 设置设备 - 优先使用GPU，故障降到CPU
+
+    # 设置设备 - 优先使用GPU
     if torch.cuda.is_available():
         device = torch.device("cuda")
         print(f"使用设备: {device}")
@@ -37,6 +29,7 @@ def evaluate(model_path="../models/cnn_model_bus_focus.pth"):  # 优先使用最
     ]
     
     found_model = False
+
     for path in model_paths:
         if os.path.exists(path):
             model_path = path
@@ -49,16 +42,16 @@ def evaluate(model_path="../models/cnn_model_bus_focus.pth"):  # 优先使用最
         print("请先运行 train.py 训练模型。")
         return None
 
-    # 加载模型权重（临时加载以确定模型类型）
+    # 加载模型权重
     checkpoint = torch.load(model_path, map_location=device, weights_only=False)
     
     # 尝试根据权重键的特征判断模型类型
     if any('init_conv' in key or 'res_block' in key for key in checkpoint.keys()):
-        # 这是改进版模型 (CNNImproved)
+        # 改进版模型 (CNNImproved)
         model = CNNImproved(num_classes=2, input_size=64).to(device)
         print("检测到改进版CNN模型（带残差连接）")
     else:
-        # 这是基础版模型 (CNN)
+        # 基础版模型 (CNN)
         model = CNN(num_classes=2, input_size=64).to(device)
         print("检测到基础版CNN模型")
     
@@ -77,7 +70,7 @@ def evaluate(model_path="../models/cnn_model_bus_focus.pth"):  # 优先使用最
     test_dataset = BusCarDataset("../data/test", transform=test_transform)
     
     if len(test_dataset) == 0:
-        print("错误: 测试数据集为空！")
+        print("错误: 测试数据集为空")
         return None
     
     test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False, num_workers=0)
@@ -94,7 +87,7 @@ def evaluate(model_path="../models/cnn_model_bus_focus.pth"):  # 优先使用最
     class_correct = [0] * 2
     class_total = [0] * 2
 
-    print("\n开始评估...")
+    print("\n开始评估")
     
     with torch.no_grad():
         for images, labels in test_loader:
@@ -145,6 +138,6 @@ def evaluate(model_path="../models/cnn_model_bus_focus.pth"):  # 优先使用最
         "class_names": BusCarDataset.CLASSES
     }
 
-
+# 主函数入口
 if __name__ == "__main__":
     evaluate()

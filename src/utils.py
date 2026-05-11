@@ -4,6 +4,7 @@ import torch
 from PIL import Image
 from torchvision import transforms
 
+# 统计数据集样本数量
 def count_dataset_samples(root_dir):
 
     classes = ["electric bus", "electric car"]
@@ -19,6 +20,7 @@ def count_dataset_samples(root_dir):
     return counts
 
 
+# 绘制训练历史曲线
 def plot_training_history(train_accs, val_accs, train_losses, val_losses, save_path=None):
 
     plt.figure(figsize=(12, 5))
@@ -52,6 +54,7 @@ def plot_training_history(train_accs, val_accs, train_losses, val_losses, save_p
         plt.show()
 
 
+# 可视化图像
 def visualize_images(dataset, num_samples=5, save_path=None):
 
     plt.figure(figsize=(15, 5))
@@ -75,6 +78,7 @@ def visualize_images(dataset, num_samples=5, save_path=None):
         plt.show()
 
 
+# 预测单张图像
 def predict_single_image(image_path, model, transform, device):
 
     model.eval()
@@ -94,6 +98,7 @@ def predict_single_image(image_path, model, transform, device):
     return predicted.item(), confidence.item()
 
 
+# 打印模型摘要
 def print_model_summary(model, input_size=(3, 64, 64)):
 
     print("=" * 60)
@@ -126,8 +131,9 @@ def print_model_summary(model, input_size=(3, 64, 64)):
     print(f"输出形状: {output.shape}")
 
 
+# 主函数入口
 if __name__ == "__main__":
-    # 示例用法
+    
     print("数据集统计:")
     train_counts = count_dataset_samples("../data/train")
     test_counts = count_dataset_samples("../data/test")

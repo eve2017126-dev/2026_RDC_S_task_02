@@ -2,20 +2,21 @@ import torch
 import torch.nn as nn
 
 class CNN(nn.Module):
-
+    
+    # 初始化模型
     def __init__(self, num_classes=2, input_size=64):
         super(CNN, self).__init__()
         
-        self.input_size = input_size
-        self.num_classes = num_classes
+        self.input_size = input_size     # 输入图像大小（64x64）
+        self.num_classes = num_classes   # 分类数量
 
         # 特征提取层
         self.features = nn.Sequential(
             # 第一层卷积：3通道输入 -> 16通道输出
-            nn.Conv2d(3, 16, kernel_size=3, padding=1),
-            nn.BatchNorm2d(16),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(3, 16, kernel_size=3, padding=1),  # 3*3卷积核
+            nn.BatchNorm2d(16),                          # 批标准化层
+            nn.ReLU(inplace=True),                       # 激活函数
+            nn.MaxPool2d(kernel_size=2, stride=2),       # 最大池化层，尺寸减半
 
             # 第二层卷积：16通道 -> 32通道
             nn.Conv2d(16, 32, kernel_size=3, padding=1),
@@ -31,25 +32,26 @@ class CNN(nn.Module):
         )
 
         # 计算特征图大小（经过3次MaxPool2d，每次缩小2倍）
-        feature_size = input_size // (2 ** 3)  # 64 // 8 = 8
+        feature_size = input_size // (2 ** 3)  # 64 // 8 = 8  # 最后特征图大小为8x8
         
-        # 分类层
+        # 分类层：将特征图转换为类别概率
         self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Dropout(0.5),  # Dropout防止过拟合
-            nn.Linear(64 * feature_size * feature_size, 128),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
-            nn.Linear(128, num_classes)
+            nn.Dropout(0.5),                                         # Dropout防止过拟合
+            nn.Linear(64 * feature_size * feature_size, 128),        # 全连接层
+            nn.ReLU(inplace=True),                                   # 激活函数
+            nn.Dropout(0.5),                                         # Dropout防止过拟合
+            nn.Linear(128, num_classes)                              # 输出层，输出类别数量
         )
 
+    # 前向传播
     def forward(self, x):
 
         x = self.features(x)
         x = self.classifier(x)
         return x
 
-
+# 改进版CNN模型：带残差连接
 class CNNImproved(nn.Module):
  
     def __init__(self, num_classes=2, input_size=64):
@@ -72,7 +74,7 @@ class CNNImproved(nn.Module):
         # 残差块3
         self.res_block3 = self._make_residual_block(128, 256)
         
-        # 全局平均池化
+        # 全局平均池化：将特征图转换为固定长度向量
         self.global_avg_pool = nn.AdaptiveAvgPool2d(1)
         
         # 分类层
@@ -95,6 +97,7 @@ class CNNImproved(nn.Module):
             nn.ReLU(inplace=True)
         )
     
+    # 前向传播
     def forward(self, x):
         x = self.init_conv(x)
         x = self.res_block1(x)
