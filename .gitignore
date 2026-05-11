@@ -1,2 +1,73 @@
-**/__pycache__/
-*.pyc
+# Python相关
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyCharm
+.idea/
+
+# VSCode
+.vscode/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# 数据目录
+data/
+models/
+
+# 日志文件
+*.log
+
+# 临时文件
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# 虚拟环境
+venv/
+env/
+ENV/
+.venv/
+.env/
+
+# 编译文件
+*.o
+*.pyd
+*.pyo
+
+# 依赖管理
+pip-log.txt
+pip-delete-this-directory.txt
+
+# IDE相关
+*.swp
+*.swo
+*~
+
+# 系统文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
