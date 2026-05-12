@@ -106,18 +106,3 @@ class CNNImproved(nn.Module):
         x = self.global_avg_pool(x)
         x = self.classifier(x)
         return x
-        x = self.res_block2(x)
-        x = self.res_block3(x)
-        x = self.global_avg_pool(x)
-        x = self.classifier(x)
-        return x
-        x = self.res_block2(x)
-        x = self.res_block3(x)
-        x = self.global_avg_pool(x)
-        x = self.classifier(x)
-        return x
-        x = self.res_block2(x)
-        x = self.res_block3(x)
-        x = self.global_avg_pool(x)
-        x = self.classifier(x)
-        return x
